@@ -124,6 +124,7 @@ check("ON timeout: recovered to seat selection with seats", (await page.locator(
 await page.goto(`${BASE}/events/e1`);
 await page.locator(".btn-primary", { hasText: "Book Tickets" }).click();
 await page.waitForURL("**/book/event/e1/showtime/**");
+await page.waitForSelector(".tier-card");
 check("Event flow: tier cards, no seat grid", (await page.locator(".tier-card").count()) === 3 && (await page.locator(".seat").count()) === 0);
 const gnPlus = page.locator(".tier-card", { hasText: "General" }).locator(".stepper button").nth(1);
 await gnPlus.click();
@@ -148,8 +149,10 @@ check("Both bookings in My Tickets", (await page.locator(".ticket-card").count()
 await page.locator(".failsafe-toggle").click();
 check("Toggle now OFF", (await page.locator(".failsafe-toggle").textContent()).includes("OFF"));
 await page.goto(`${BASE}/movies/m3`);
+await page.waitForSelector(".showtime-pill");
 await page.locator(".showtime-pill").first().click();
-await page.waitForURL("**/showtime/**");
+await page.waitForURL(atSeatSelection);
+await page.waitForSelector(".seat");
 await page.locator(".seat:not(.sold)").first().click();
 await page.locator(".sticky-bar .btn-primary").click();
 await page.waitForURL("**/checkout");
@@ -188,6 +191,49 @@ check("OFF: success path still completes", true);
 // ---------- 7. Deep link ----------
 const resp = await page.goto(`${BASE}/movies`);
 check("Deep link to /movies renders listing", resp.ok() && (await page.locator(".card-grid .card").count()) === 7);
+
+// ---------- 8. Guided Demo Tour (fresh context = first visit) ----------
+const ctx2 = await browser.newContext({ viewport: { width: 480, height: 900 } });
+const p2 = await ctx2.newPage();
+p2.on("pageerror", (e) => console.log("PAGE ERROR:", e.message));
+await p2.goto(`${BASE}/`);
+check("First visit shows tour prompt bubble", await p2.locator(".tour-bubble").isVisible());
+check("Tour launch button present", await p2.locator(".tour-launch").isVisible());
+await p2.locator(".tour-launch").click();
+check("Tour starts with welcome card", (await p2.locator(".tour-card h3").textContent()).includes("Welcome"));
+
+// Milestone selector that must be visible when each step (by index) is ready.
+const milestones = {
+  3: ".seat.selected",
+  4: ".countdown",
+  5: ".offer-item",
+  8: ".risk-banner",
+  9: ".demo-panel",
+  10: ".failure-box.recovery",
+  11: ".recovery-banner",
+  12: ".offer-tabs",
+  13: ".failure-box.deadend",
+};
+const TOTAL_STEPS = 15;
+let tourOk = true;
+for (let i = 0; i < TOTAL_STEPS; i++) {
+  await p2.locator(".tour-progress", { hasText: `Step ${i + 1} of ${TOTAL_STEPS}` }).waitFor({ timeout: 30000 });
+  await p2.locator(".tour-next:not([disabled])").waitFor({ timeout: 30000 });
+  if (milestones[i]) {
+    const visible = await p2.locator(milestones[i]).first().isVisible();
+    if (!visible) {
+      console.log(`      tour step ${i + 1}: expected ${milestones[i]} visible`);
+      tourOk = false;
+    }
+  }
+  await p2.locator(".tour-next").click();
+}
+check("Tour steps all reached ready state with expected milestones", tourOk);
+await p2.waitForURL(`${BASE}/`);
+check("Tour finish returns home with toggle restored ON", (await p2.locator(".failsafe-toggle").textContent()).includes("ON"));
+check("Tour prompt bubble not shown again", (await p2.locator(".tour-bubble").count()) === 0);
+await p2.screenshot({ path: `${SHOT_DIR}/9-tour-done.png` });
+await ctx2.close();
 
 await browser.close();
 console.log(failures === 0 ? "\nALL CHECKS PASSED" : `\n${failures} CHECK(S) FAILED`);

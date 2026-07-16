@@ -1,6 +1,7 @@
 import { Route, Routes } from "react-router-dom";
 import Header from "./components/Header";
 import Disclaimer from "./components/Disclaimer";
+import DemoTour from "./components/DemoTour";
 import Home from "./pages/Home";
 import MoviesListing from "./pages/MoviesListing";
 import EventsListing from "./pages/EventsListing";
@@ -30,6 +31,7 @@ export default function App() {
         <Route path="*" element={<Home />} />
       </Routes>
       <Disclaimer />
+      <DemoTour />
     </div>
   );
 }

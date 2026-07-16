@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 import {
   useBooking,
@@ -36,11 +36,34 @@ export default function Payment() {
 
   const [method, setMethod] = useState<Method>("upi");
   const [armed, setArmed] = useState<DemoOutcome>(null);
+  const [demoOpen, setDemoOpen] = useState(false);
   const [processing, setProcessing] = useState(false);
   const [failure, setFailure] = useState<null | "recovering" | "deadend">(null);
   const [riskDismissed, setRiskDismissed] = useState(false);
   const [cardNum, setCardNum] = useState("");
   const resolvingRef = useRef(false);
+  const payRef = useRef<(override?: Exclude<DemoOutcome, null>) => void>(() => {});
+
+  // Lets the guided Demo Tour drive this screen (select a method, open the
+  // demo panel, force a failing payment) without duplicating its logic.
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const action = (e as CustomEvent<string>).detail;
+      if (action === "netbanking") {
+        setMethod("netbanking");
+        setRiskDismissed(false);
+      } else if (action === "open-demo") {
+        setDemoOpen(true);
+      } else if (action === "arm-failure") {
+        setArmed("failure");
+      } else if (action === "pay-failure") {
+        setDemoOpen(false);
+        payRef.current("failure");
+      }
+    };
+    window.addEventListener("showtime-tour", handler);
+    return () => window.removeEventListener("showtime-tour", handler);
+  }, []);
 
   const isMovie = itemType === "movie";
   const movie = isMovie && itemId ? getMovie(itemId) : undefined;
@@ -108,13 +131,13 @@ export default function Payment() {
     navigate(`/book/${itemType}/${itemId}/confirmation`);
   };
 
-  const pay = async () => {
+  const pay = async (override?: Exclude<DemoOutcome, null>) => {
     if (resolvingRef.current) return;
     resolvingRef.current = true;
     setFailure(null);
     setProcessing(true);
     const outcome: Exclude<DemoOutcome, null> =
-      armed ?? (Math.random() < 0.3 ? "failure" : "success");
+      override ?? armed ?? (Math.random() < 0.3 ? "failure" : "success");
     setArmed(null);
     await sleep(outcome === "timeout" ? 4000 : 2500);
     resolvingRef.current = false;
@@ -124,6 +147,7 @@ export default function Payment() {
       handleFailure(outcome);
     }
   };
+  payRef.current = pay;
 
   // Fail-Safe ON: if the hold clock runs out mid-payment, treat it as a timeout
   // and recover rather than stranding the user.
@@ -232,7 +256,7 @@ export default function Payment() {
       </div>
 
       <div className="sticky-bar">
-        <button className="btn-primary" onClick={pay} disabled={processing}>
+        <button className="btn-primary" onClick={() => pay()} disabled={processing}>
           Pay {inr(total)}
         </button>
       </div>
@@ -269,7 +293,7 @@ export default function Payment() {
         </div>
       )}
 
-      <DemoControlsPanel armed={armed} onArm={setArmed} />
+      <DemoControlsPanel armed={armed} onArm={setArmed} open={demoOpen} onToggle={setDemoOpen} />
     </>
   );
 }

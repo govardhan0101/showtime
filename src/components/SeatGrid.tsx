@@ -23,7 +23,7 @@ export default function SeatGrid({ showtimeId, selected, onChange }: Props) {
 
   let lastTier = "";
   return (
-    <div>
+    <div className="seat-grid">
       <div className="screen-arc">SCREEN THIS WAY</div>
       {grid.map((row) => {
         const tierHeading =

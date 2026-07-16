@@ -1,17 +1,15 @@
-import { useState } from "react";
-
 export type DemoOutcome = "success" | "failure" | "timeout" | null;
 
 interface Props {
   armed: DemoOutcome;
   onArm: (outcome: DemoOutcome) => void;
+  open: boolean;
+  onToggle: (open: boolean) => void;
 }
 
 // Presenter-only panel: pre-arms the outcome of the next "Pay" tap so a live
 // demo never depends on random chance.
-export default function DemoControlsPanel({ armed, onArm }: Props) {
-  const [open, setOpen] = useState(false);
-
+export default function DemoControlsPanel({ armed, onArm, open, onToggle }: Props) {
   return (
     <>
       {open && (
@@ -43,7 +41,7 @@ export default function DemoControlsPanel({ armed, onArm }: Props) {
       )}
       <button
         className="demo-gear"
-        onClick={() => setOpen((o) => !o)}
+        onClick={() => onToggle(!open)}
         aria-label="Demo controls"
         title="Demo controls"
       >
