@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { movies } from "../data/movies";
 import { events } from "../data/events";
-import FailSafeToggle from "./FailSafeToggle";
+import DemoModeBar from "./DemoModeBar";
 
 export default function Header() {
   const [query, setQuery] = useState("");
@@ -21,6 +21,7 @@ export default function Header() {
 
   return (
     <header className="header">
+      <DemoModeBar />
       <div className="header-row">
         <Link to="/" className="logo">
           Show<span>Time</span>
@@ -60,7 +61,9 @@ export default function Header() {
             </div>
           )}
         </div>
-        <FailSafeToggle />
+        <Link to="/agent" className="ask-btn" title="Conversational booking — tell ShowTime what you want in one sentence">
+          ✨ Ask
+        </Link>
       </div>
       <nav className="nav-tabs">
         <NavLink to="/" end className={({ isActive }) => `nav-tab ${isActive ? "active" : ""}`}>

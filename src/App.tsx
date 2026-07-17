@@ -7,6 +7,7 @@ import MoviesListing from "./pages/MoviesListing";
 import EventsListing from "./pages/EventsListing";
 import MovieDetail from "./pages/MovieDetail";
 import EventDetail from "./pages/EventDetail";
+import Agent from "./pages/Agent";
 import SeatSelection from "./pages/SeatSelection";
 import Checkout from "./pages/Checkout";
 import Payment from "./pages/Payment";
@@ -23,6 +24,7 @@ export default function App() {
         <Route path="/movies/:movieId" element={<MovieDetail />} />
         <Route path="/events" element={<EventsListing />} />
         <Route path="/events/:eventId" element={<EventDetail />} />
+        <Route path="/agent" element={<Agent />} />
         <Route path="/book/:itemType/:itemId/showtime/:showtimeId" element={<SeatSelection />} />
         <Route path="/book/:itemType/:itemId/checkout" element={<Checkout />} />
         <Route path="/book/:itemType/:itemId/payment" element={<Payment />} />

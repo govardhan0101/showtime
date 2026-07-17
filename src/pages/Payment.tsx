@@ -8,6 +8,7 @@ import { getMovie, getShowtime } from "../data/movies";
 import { getEvent, formatEventDate } from "../data/events";
 import { bookingSubtotal, inr, seatsLabel } from "../data/pricing";
 import { CONVENIENCE_FEE, getOffer } from "../data/offers";
+import { saveAbandoned } from "../data/abandoned";
 import CountdownTimer from "../components/CountdownTimer";
 import DemoControlsPanel, { type DemoOutcome } from "../components/DemoControlsPanel";
 
@@ -101,11 +102,23 @@ export default function Payment() {
     setProcessing(false);
     if (state.failSafe) {
       failToSeatSelection(
-        kind === "timeout"
+        (kind === "timeout"
           ? "The payment timed out — good news, your seats are still held. We've extended your hold so you can try again."
-          : "Your payment didn't go through — good news, your seats are still held. Pick up right where you left off."
+          : "Your payment didn't go through — good news, your seats are still held. Pick up right where you left off.") +
+          " If any amount was debited, it refunds automatically within 5–7 days."
       );
     } else {
+      // Classic dead end — but Solution 2's win-back still remembers what the
+      // user was buying so the home screen can re-engage them later.
+      saveAbandoned({
+        itemType: itemType as "movie" | "event",
+        itemId,
+        showtimeId: state.showtimeId ?? "",
+        title: (isMovie ? movie?.title : event?.title) ?? "",
+        seats: state.seats,
+        tierQty: state.tierQty,
+        abandonedAt: Date.now(),
+      });
       setFailure("deadend");
     }
   };
@@ -277,7 +290,8 @@ export default function Payment() {
           {failure === "recovering" && (
             <div className="failure-box recovery">
               <strong>Payment didn't go through</strong> — good news, your seats
-              are still held. Taking you back…
+              are still held. Any debited amount refunds automatically within
+              5–7 days. Taking you back…
             </div>
           )}
           {failure === "deadend" && (

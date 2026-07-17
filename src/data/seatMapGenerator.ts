@@ -33,6 +33,26 @@ function hashString(s: string) {
   return h >>> 0;
 }
 
+// Find n adjacent free seats, optionally restricted to specific tier rows.
+// Used by the booking agent, QuickBook, and the demo tour.
+export function pickAdjacentFreeSeats(
+  showtimeId: string,
+  n: number,
+  tierRows?: readonly string[]
+): string[] {
+  const grid = generateSeatMap(showtimeId);
+  const candidates = tierRows
+    ? [...grid.filter((r) => tierRows.includes(r[0].row)), ...grid]
+    : grid;
+  for (const row of candidates) {
+    for (let i = 0; i + n <= row.length; i++) {
+      const slice = row.slice(i, i + n);
+      if (slice.every((s) => !s.sold)) return slice.map((s) => s.id);
+    }
+  }
+  return [];
+}
+
 export function generateSeatMap(showtimeId: string): Seat[][] {
   const rand = mulberry32(hashString(showtimeId));
   return ROWS.map((row) => {

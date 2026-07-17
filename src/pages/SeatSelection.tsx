@@ -6,6 +6,7 @@ import { getEvent, formatEventDate } from "../data/events";
 import SeatGrid from "../components/SeatGrid";
 import TierSelector from "../components/TierSelector";
 import { bookingSubtotal, inr, ticketCount } from "../data/pricing";
+import { CONVENIENCE_FEE } from "../data/offers";
 
 export default function SeatSelection() {
   const { itemType, itemId, showtimeId } = useParams();
@@ -72,8 +73,9 @@ export default function SeatSelection() {
         <div className="total-info">
           <div className="label">
             {count} {isMovie ? (count === 1 ? "seat" : "seats") : count === 1 ? "ticket" : "tickets"} selected
+            {count > 0 && " · incl. ₹35 fee"}
           </div>
-          <div className="amount">{inr(subtotal)}</div>
+          <div className="amount">{inr(count > 0 ? subtotal + CONVENIENCE_FEE : 0)}</div>
         </div>
         <button className="btn-primary" disabled={count === 0} onClick={proceed}>
           Proceed

@@ -1,15 +1,22 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link, Navigate } from "react-router-dom";
 import { useBooking } from "../context/BookingContext";
+import { clearAbandoned } from "../data/abandoned";
 import { inr } from "../data/pricing";
 
 export default function Confirmation() {
   const { state, dispatch } = useBooking();
   const booking = state.lastBooking;
+  const [calendarAdded, setCalendarAdded] = useState(false);
+  const [shared, setShared] = useState(false);
 
-  // The seats/hold/offer are no longer needed once the ticket is issued.
+  // The seats/hold/offer are no longer needed once the ticket is issued, and
+  // a completed booking supersedes any pending win-back nudge.
   useEffect(() => {
-    if (booking) dispatch({ type: "RESET_FLOW" });
+    if (booking) {
+      dispatch({ type: "RESET_FLOW" });
+      clearAbandoned();
+    }
   }, [booking, dispatch]);
 
   // Booking was already persisted to localStorage on CONFIRM_BOOKING.
@@ -45,6 +52,14 @@ export default function Confirmation() {
             alt="QR code placeholder"
           />
         </div>
+      </div>
+      <div className="confirm-extras">
+        <button onClick={() => setCalendarAdded(true)} disabled={calendarAdded}>
+          {calendarAdded ? "✓ Added to calendar (demo)" : "📅 Add to calendar"}
+        </button>
+        <button onClick={() => setShared(true)} disabled={shared}>
+          {shared ? "✓ Link copied (demo)" : "🔗 Share with friends"}
+        </button>
       </div>
       <p style={{ fontSize: "0.78rem", color: "var(--slate-mid)", marginBottom: 16 }}>
         This ticket has been saved to <strong>My Tickets</strong>.

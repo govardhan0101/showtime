@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, type NavigateFunction } from "react-router-dom";
 import { useBooking } from "../context/BookingContext";
-import { generateSeatMap } from "../data/seatMapGenerator";
+import { pickAdjacentFreeSeats } from "../data/seatMapGenerator";
 
 const TOUR_SEEN_KEY = "showtime.tourSeen";
 const TOUR_SHOWTIME = "m1-s1";
@@ -24,41 +24,51 @@ interface TourStep {
 const fireTourEvent = (action: string) =>
   window.dispatchEvent(new CustomEvent("showtime-tour", { detail: action }));
 
-function pickTwoAdjacentFreeSeats(): string[] {
-  for (const row of generateSeatMap(TOUR_SHOWTIME)) {
-    for (let i = 0; i < row.length - 1; i++) {
-      if (!row[i].sold && !row[i + 1].sold) return [row[i].id, row[i + 1].id];
-    }
-  }
-  return [];
-}
-
 const steps: TourStep[] = [
   {
     title: "Welcome to ShowTime 👋",
-    body: "A BookMyShow-inspired prototype built to demonstrate one product idea: Fail-Safe Checkout. This 2-minute tour drives the app for you — book seats, fail a payment, watch the recovery, then see the classic experience for contrast. Just press Next.",
+    body: "A BookMyShow-inspired prototype of a retention-led strategy: a conversational booking agent, QuickBook for returning users, transparent pricing, and a fail-safe checkout with win-back. This tour drives the app for you — just press Next.",
   },
   {
-    target: ".failsafe-toggle",
-    title: "The master switch",
-    body: "This global toggle flips the entire checkout between the improved experience (ON) and the classic one (OFF). It changes real behavior — timers, offers, failure handling — not just labels. It's ON right now.",
+    target: ".demo-bar",
+    title: "A presenter control — not a product setting",
+    body: "No real user would opt into a worse checkout, so this switch lives in a clearly-labelled demo strip, outside the product UI. It flips the prototype between the Improved experience and the Classic one it replaces — changing real behaviour, not labels.",
+  },
+  {
+    target: ".loyalty-card",
+    title: "Loyalty made visible",
+    body: "Research finding: loyalty value feels invisible because progress hides in the profile. Here it sits on the homepage — seen every time the app opens, without being asked for.",
+  },
+  {
+    path: "/agent",
+    preWait: ".agent-input",
+    run: () => fireTourEvent("agent-demo"),
+    waitFor: ".agent-actions",
+    target: ".agent-thread",
+    title: "Flagship: the Conversational Booking Agent",
+    body: "One sentence replaces five filter screens. The agent matched the movie, showtime, and two adjacent Recliners — and placed the seat hold the moment it found a match, so chat latency can't lose the seats. Payment always stays in the normal checkout.",
   },
   {
     path: "/movies/m1",
-    target: ".venue-block",
-    title: "Browse → showtimes",
-    body: "Standard discovery: posters, details, and showtimes grouped by venue. The tour picks Mortal Kombat 2 at PVR: Phoenix Marketcity for you.",
+    target: ".quickbook-card",
+    title: "QuickBook — the tap-based fast path",
+    body: "For returning users who prefer speed over conversation: confirm group size with one tap — never assumed — and everything else is pre-filled, with a manual fallback always visible. The tour takes the scenic manual route so you see every screen.",
   },
   {
     path: `/book/movie/m1/showtime/${TOUR_SHOWTIME}`,
     run: ({ dispatch }) => {
       dispatch({ type: "START_BOOKING", itemType: "movie", itemId: "m1", showtimeId: TOUR_SHOWTIME });
-      dispatch({ type: "SET_SEATS", seats: pickTwoAdjacentFreeSeats() });
+      dispatch({ type: "SET_SEATS", seats: pickAdjacentFreeSeats(TOUR_SHOWTIME, 2) });
     },
     waitFor: ".seat.selected",
     target: ".seat-grid",
     title: "Pick your seats",
-    body: "An 8×12 seat map with tiered pricing — grey seats are already sold. We've selected two Recliners for you. The moment you proceed, a 5-minute seat hold starts. Remember these seats; they matter later.",
+    body: "An 8×12 seat map with tiered pricing — grey seats are already sold. We've selected two Recliners for you. Remember these seats; they matter later.",
+  },
+  {
+    target: ".sticky-bar",
+    title: "The true price, early",
+    body: "Fee-triggered abandonment was the second-biggest churn driver in the research — so the running total here already includes the ₹35 convenience fee. No surprise at the last step.",
   },
   {
     run: ({ dispatch }) => {
@@ -67,18 +77,18 @@ const steps: TourStep[] = [
     },
     path: "/book/movie/m1/checkout",
     target: ".countdown",
-    title: "Fail-Safe #1: a visible hold timer",
+    title: "A visible hold timer",
     body: "Your seat hold is explicit and always visible — green, then amber under 2:00, red under 0:30. No silently expiring seats.",
   },
   {
     target: ".offer-item",
-    title: "Fail-Safe #2: one offer list, best first",
-    body: "Every offer in a single sorted list, with the best one for you flagged \"Recommended\". Flip the toggle OFF and these exact offers scatter across three tabs with no signal of which is best — you'll see that later.",
+    title: "One offer list, best first",
+    body: "Transparent Checkout auto-matches the best offer for your saved payment method and flags it \"Recommended\". In classic mode these exact offers scatter across three tabs with no signal — you'll see that shortly.",
   },
   {
     target: ".summary-card",
-    title: "Fee transparency",
-    body: "The ₹35 convenience fee is itemized up front with a plain-language explanation — hidden fees were a named research finding, so this prototype shows them plainly.",
+    title: "Fee transparency, itemised",
+    body: "The ₹35 fee is a separate labelled line with a plain-language tooltip — shown plainly here and already included in every running total you've seen.",
   },
   {
     path: "/book/movie/m1/payment",
@@ -90,7 +100,7 @@ const steps: TourStep[] = [
     run: () => fireTourEvent("netbanking"),
     waitFor: ".risk-banner",
     target: ".risk-banner",
-    title: "Fail-Safe #3: Smart Payment Routing",
+    title: "Smart Payment Routing",
     body: "We just selected Net Banking — a rail the simulated router flags as risky right now. It warns you before you pay and offers a one-tap switch to UPI.",
   },
   {
@@ -107,8 +117,8 @@ const steps: TourStep[] = [
     run: () => fireTourEvent("pay-failure"),
     waitFor: ".failure-box.recovery",
     target: ".failure-box.recovery",
-    title: "Fail-Safe #4: failure without stranding",
-    body: "The payment just failed — on purpose. Notice the message: it says exactly what happened AND that your seats are safe. In two seconds it takes you back automatically. Press Next.",
+    title: "Failure without stranding",
+    body: "The payment just failed — on purpose. The message says what happened, that your seats are safe, and that any debited amount auto-refunds in 5–7 days — the upfront refund promise that removes the anxiety. Press Next.",
   },
   {
     waitFor: ".recovery-banner",
@@ -123,8 +133,8 @@ const steps: TourStep[] = [
     },
     path: "/book/movie/m1/checkout",
     target: ".offer-tabs",
-    title: "Classic mode: toggle OFF",
-    body: "We've flipped the toggle OFF. Same order, same offers — but now they're split across three tabs with no best-offer signal. And notice: the hold timer is gone.",
+    title: "Classic mode",
+    body: "We've switched the demo strip to Classic. Same order, same offers — but now they're split across three tabs with no best-offer signal. And notice: the hold timer is gone.",
   },
   {
     path: "/book/movie/m1/payment",
@@ -133,11 +143,18 @@ const steps: TourStep[] = [
     waitFor: ".failure-box.deadend",
     target: ".failure-box.deadend",
     title: "…and the classic dead end",
-    body: "The identical failure in classic mode: a generic \"Payment Failed\", no seat status, no path forward except backing out manually. This stranded moment is exactly what Fail-Safe Checkout removes.",
+    body: "The identical failure in classic mode: a generic \"Payment Failed\", no seat status, no refund promise, no path forward. This stranded moment is exactly what the improved flow removes.",
   },
   {
-    title: "That's the pitch 🎬",
-    body: "Fail-Safe Checkout = visible seat holds + one smart offer list + risk-aware payment routing + automatic recovery on failure. Explore freely — flip the header toggle any time, and use the gear icon on the Payment screen to force any outcome. (Toggle restored to ON.)",
+    path: "/",
+    waitFor: ".winback-card",
+    target: ".winback-card",
+    title: "Win-back: one specific reason to return",
+    body: "The platform remembered that stranded booking. Next time the user opens the app, it offers to resume exactly where they left off — selection saved, refund timeline stated. Proactive recovery instead of a lost customer.",
+  },
+  {
+    title: "That's the strategy on screen 🎬",
+    body: "Conversational agent + QuickBook cut booking effort; transparent pricing and offer-matching stop fee abandonment; the fail-safe flow with refund promises and win-back turns failures into second transactions. Explore freely — the demo strip and the Payment gear panel are always available. (Switched back to Improved.)",
   },
 ];
 
@@ -258,7 +275,7 @@ export default function DemoTour() {
       <>
         {showPrompt && (
           <div className="tour-bubble">
-            <span>New here? Take the 2-minute guided tour of the Fail-Safe Checkout demo.</span>
+            <span>New here? Take the 3-minute guided tour — it demos the booking agent, QuickBook, and the fail-safe checkout for you.</span>
             <button className="tour-bubble-close" onClick={markSeen} aria-label="Dismiss">
               ✕
             </button>

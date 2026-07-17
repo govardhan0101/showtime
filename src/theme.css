@@ -1168,6 +1168,369 @@ button {
   background: #fafafa;
 }
 
+/* ---------- Demo mode bar (presenter control) ---------- */
+.demo-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: var(--slate);
+  color: #cbd5e1;
+  padding: 6px 14px;
+  font-size: 0.62rem;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.demo-seg {
+  display: flex;
+  border: 1px solid var(--slate-mid);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.demo-seg button {
+  border: none;
+  background: transparent;
+  color: #94a3b8;
+  padding: 4px 12px;
+  font-size: 0.64rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.demo-seg button.active {
+  background: var(--green);
+  color: #fff;
+}
+
+.demo-seg button.active:last-child {
+  background: var(--amber);
+}
+
+.ask-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 1px solid var(--red);
+  color: var(--red);
+  background: var(--red-soft);
+  border-radius: 999px;
+  padding: 6px 13px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* ---------- Agent (conversational booking) ---------- */
+.agent-flag {
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--red);
+  background: var(--red-soft);
+  border-radius: 5px;
+  padding: 3px 8px;
+}
+
+.agent-thread {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 220px;
+  max-height: 46vh;
+  overflow-y: auto;
+  padding: 4px 0 10px;
+}
+
+.agent-msg {
+  display: flex;
+}
+
+.agent-msg.user {
+  justify-content: flex-end;
+}
+
+.agent-msg .bubble {
+  max-width: 85%;
+  border-radius: 14px;
+  padding: 10px 13px;
+  font-size: 0.84rem;
+  line-height: 1.5;
+}
+
+.agent-msg.agent .bubble {
+  background: var(--bg-page);
+  color: var(--slate);
+  border-bottom-left-radius: 4px;
+}
+
+.agent-msg.user .bubble {
+  background: var(--red);
+  color: #fff;
+  border-bottom-right-radius: 4px;
+}
+
+.agent-chips {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.agent-chips button,
+.agent-suggestions button {
+  border: 1px solid var(--red);
+  color: var(--red);
+  background: #fff;
+  border-radius: 999px;
+  padding: 7px 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-align: left;
+}
+
+.agent-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-top: 10px;
+}
+
+.agent-confirm {
+  border: none;
+  background: var(--green);
+  color: #fff;
+  border-radius: 8px;
+  padding: 9px 12px;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.agent-change {
+  border: 1px solid var(--slate-light);
+  background: #fff;
+  color: var(--slate-mid);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 0.76rem;
+  font-weight: 600;
+}
+
+.agent-suggestions {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-bottom: 12px;
+}
+
+.agent-input-row {
+  display: flex;
+  gap: 8px;
+}
+
+.agent-input {
+  flex: 1;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 11px 12px;
+  font-size: 0.85rem;
+  outline: none;
+}
+
+.agent-input:focus {
+  border-color: var(--red);
+}
+
+.agent-send {
+  border: none;
+  background: var(--red);
+  color: #fff;
+  border-radius: 10px;
+  padding: 0 18px;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.agent-send:disabled {
+  background: var(--slate-light);
+}
+
+.agent-note {
+  font-size: 0.68rem;
+  color: var(--slate-light);
+  margin-top: 12px;
+  line-height: 1.5;
+}
+
+/* ---------- QuickBook ---------- */
+.quickbook-card {
+  border: 1px solid var(--amber);
+  background: var(--amber-soft);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 14px;
+}
+
+.quickbook-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: 800;
+  font-size: 0.92rem;
+  margin-bottom: 6px;
+}
+
+.quickbook-badge {
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--amber);
+  background: #fff;
+  border: 1px solid var(--amber);
+  border-radius: 999px;
+  padding: 2px 8px;
+}
+
+.quickbook-card p {
+  font-size: 0.78rem;
+  color: var(--slate-mid);
+  line-height: 1.5;
+  margin-bottom: 12px;
+}
+
+.quickbook-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.quickbook-go {
+  flex: 1;
+  border: none;
+  background: var(--red);
+  color: #fff;
+  border-radius: 9px;
+  padding: 11px 12px;
+  font-size: 0.84rem;
+  font-weight: 700;
+}
+
+.quickbook-manual {
+  display: block;
+  width: 100%;
+  margin-top: 9px;
+  border: none;
+  background: none;
+  color: var(--slate-mid);
+  font-size: 0.74rem;
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+/* ---------- Win-back & loyalty (home) ---------- */
+.winback-card {
+  border: 1px solid var(--amber);
+  background: var(--amber-soft);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 14px;
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.winback-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.winback-resume {
+  border: none;
+  background: var(--red);
+  color: #fff;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.winback-dismiss {
+  border: none;
+  background: none;
+  color: var(--slate-mid);
+  font-size: 0.76rem;
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.loyalty-card {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+}
+
+.loyalty-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.loyalty-hint {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--slate-light);
+  text-align: right;
+}
+
+.loyalty-track {
+  height: 7px;
+  border-radius: 999px;
+  background: var(--bg-page);
+  overflow: hidden;
+}
+
+.loyalty-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--green);
+  transition: width 0.4s;
+}
+
+/* ---------- Confirmation extras ---------- */
+.confirm-extras {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.confirm-extras button {
+  flex: 1;
+  border: 1px solid var(--border);
+  background: #fff;
+  color: var(--slate);
+  border-radius: 9px;
+  padding: 10px 8px;
+  font-size: 0.76rem;
+  font-weight: 600;
+}
+
+.confirm-extras button:disabled {
+  color: var(--green);
+  border-color: var(--green);
+  background: var(--green-soft);
+  cursor: default;
+}
+
 /* ---------- Demo tour ---------- */
 .tour-launch {
   position: fixed;
